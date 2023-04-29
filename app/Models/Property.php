@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Observers\PropertyObserver;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -18,6 +19,13 @@ class Property extends Model
         'lat',
         'long',
     ];
+
+    public static function booted()
+    {
+        parent::booted();
+
+        self::observe(PropertyObserver::class);
+    }
 
     public function owner()
     {
