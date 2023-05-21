@@ -14,6 +14,11 @@ class PropertySearchController extends Controller
             ->when($request->city, function($query) use ($request) {
                 $query->where('city_id', $request->city);
             })
+            ->when($request->country, function($query) use ($request) {
+                // get properties that HAVE a relationship (belong to) with a city
+                // WHERE that city must reside in the requested country
+                $query->whereHas('city', fn($q) => $q->where('country_id', $request->country));
+            })
             ->get();
     }
 }
