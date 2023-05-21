@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\City;
 use App\Models\Country;
+use App\Models\Geoobject;
 use App\Models\Property;
 use App\Models\Role;
 use App\Models\User;
@@ -46,5 +47,31 @@ class PropertySearchTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonCount(1);
         $response->assertJsonFragment(['id' => $propertyInCountry->id]);
+    }
+
+    public function test_property_search_by_geoobject_returns_correct_results()
+    {
+        $owner = User::factory()->create(['role_id' => Role::ROLE_OWNER]);
+        $cityId = City::value('id');
+        $geoobject = Geoobject::first();
+        $propertyNear = Property::factory()->create([
+            'owner_id' => $owner->id,
+            'city_id' => $cityId,
+            'lat' => $geoobject->lat,
+            'long' => $geoobject->long,
+        ]);
+        // Reference: https://gps-coordinates.org/distance-between-coordinates.php
+        $propertyFar = Property::factory()->create([
+            'owner_id' => $owner->id,
+            'city_id' => $cityId,
+            'lat' => $geoobject->lat + 1,
+            'long' => $geoobject->long + 1,
+        ]);
+
+        $response = $this->getJson('/api/search?geoobject=' . $geoobject->id);
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(1);
+        $response->assertJsonFragment(['id' => $propertyNear->id]);
     }
 }
