@@ -128,7 +128,7 @@ class PropertySearchTest extends TestCase
         ]);
 
         $response = $this->getJson('/api/search?city=' . $cityId . '&adults=2&children=1');
-        dd($response);
+
         $response->assertStatus(200);
         $response->assertJsonCount(1, '0.apartments');
         $response->assertJsonPath('0.apartments.0.name', $largeApartment->name);
