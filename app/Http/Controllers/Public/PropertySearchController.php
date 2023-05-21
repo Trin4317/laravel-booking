@@ -36,6 +36,14 @@ class PropertySearchController extends Controller
                     $query->whereRaw($condition);
                 }
             })
+            ->when($request->adults && $request->children, function($query) use ($request) {
+                // only fetch the properties that have apartments with enough capacity
+                // and eager only the those apartments
+                $query->withWhereHas('apartments', function($query) use ($request) {
+                    $query->where('capacity_adults', '>=', $request->adults)
+                          ->where('capacity_children', '>=', $request->children);
+                });
+            })
             ->get();
     }
 }

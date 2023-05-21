@@ -36,4 +36,9 @@ class Property extends Model
     {
         return $this->belongsTo(City::class);
     }
+
+    public function apartments()
+    {
+        return $this->hasMany(Apartment::class);
+    }
 }
