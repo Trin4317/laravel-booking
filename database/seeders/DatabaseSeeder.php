@@ -21,5 +21,6 @@ class DatabaseSeeder extends Seeder
         $this->call(GeoobjectSeeder::class);
 
         $this->call(ApartmentTypeSeeder::class);
+        $this->call(RoomTypeSeeder::class);
     }
 }
