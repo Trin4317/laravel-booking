@@ -22,4 +22,9 @@ class Apartment extends Model
     {
         return $this->belongsTo(Property::class);
     }
+
+    public function apartment_type()
+    {
+        return $this->belongsTo(ApartmentType::class);
+    }
 }
