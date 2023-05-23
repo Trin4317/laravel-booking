@@ -3,11 +3,13 @@
 namespace Tests\Feature;
 
 use App\Models\Apartment;
+use App\Models\Bed;
 use App\Models\City;
 use App\Models\Country;
 use App\Models\Geoobject;
 use App\Models\Property;
 use App\Models\Role;
+use App\Models\Room;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -132,5 +134,43 @@ class PropertySearchTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonCount(1, '0.apartments');
         $response->assertJsonPath('0.apartments.0.name', $largeApartment->name);
+    }
+
+    public function test_property_search_returns_apartment_type_and_bed_type_if_available(): void
+    {
+        $owner = User::factory()->create(['role_id' => Role::ROLE_OWNER]);
+        $cityId = City::value('id');
+
+        $property = Property::factory()->create([
+            'owner_id' => $owner->id,
+            'city_id' => $cityId,
+        ]);
+
+        $apartment = Apartment::factory()->create([
+            'name' => 'Apartment',
+            'property_id' => $property->id,
+            'capacity_adults' => 3,
+            'capacity_children' => 2,
+        ]);
+
+        $room = Room::factory()->create([
+            'apartment_id' => $apartment->id,
+        ]);
+
+        $bed = Bed::factory()->create([
+            'room_id' => $room->id,
+        ]);
+
+        $response = $this->getJson('/api/search?city=' . $cityId . '&adults=2&children=1');
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(1, '0.apartments');
+        $response->assertJsonPath('0.apartments.0.apartment_type', $apartment->apartment_type->toArray());
+
+        $response->assertJsonCount(1, '0.apartments.0.rooms');
+        $response->assertJsonPath('0.apartments.0.rooms.0.name', $room->name);
+
+        $response->assertJsonCount(1, '0.apartments.0.rooms.0.beds');
+        $response->assertJsonPath('0.apartments.0.rooms.0.beds.0.name', $bed->name);
     }
 }
