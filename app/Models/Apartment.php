@@ -10,10 +10,12 @@ class Apartment extends Model
     use HasFactory;
 
     protected $fillable = [
+        'apartment_type_id',
         'property_id',
         'name',
         'capacity_adults',
-        'capacity_children'
+        'capacity_children',
+        'size'
     ];
 
     public function property()
